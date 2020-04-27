@@ -10,21 +10,6 @@ class App extends Component {
   state = {  }
 
   
-  getTime = () => {
-    let zipInput = document.getElementById('zipInput').value;
-    let zipcode_to_timezone = require( 'zipcode-to-timezone' );
-    let tz = zipcode_to_timezone.lookup(zipInput);
-    let time = moment().tz(tz).format('MMMM DD, YYYY, h:mm a');
-    // let time = moment().tz(tz).format('dddd');
-    this.setState({
-      moment: {
-        time: moment().tz(tz).format('h:mm a'),
-        day: moment().tz(tz).format('dddd'),
-        date: moment().tz(tz).format('MMMM DD'),
-      }
-    })
-    console.log(time);
-  }
   
   getWeather = () => {
     let zipInput = document.getElementById('zipInput').value;
@@ -37,7 +22,6 @@ class App extends Component {
           return;
         }
         
-        // Examine the text in the response
         response.json().then((data) => {
           console.log(data);
           console.log(this);
@@ -48,15 +32,35 @@ class App extends Component {
             weather: data.weather[0].description,
           });
         });
+        this.getTime();
       }
       )
       .catch(function(err) {
         console.log('Fetch Error :-S', err);
       });
-      this.getTime();
-      document.getElementById('zipInput').value='';
-      return false;
+    };
+
+  getTime = () => {
+    let zipInput = document.getElementById('zipInput').value;
+    var zipcode_to_timezone = require('zipcode-to-timezone');
+    var tz = zipcode_to_timezone.lookup(zipInput);
+    this.setState({
+      time: moment().tz(tz).format('h:mm a'),
+      day: moment().tz(tz).format('dddd'),
+      date: moment().tz(tz).format('MMMM DD'),
+    });
+    document.getElementById('zipInput').value='';
+    return false;
+  };
+
+  handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      this.getWeather();
+      // console.log('ENTER was pressed');
     }
+  };
+  
+  
     
     render() { 
       return (
@@ -67,8 +71,16 @@ class App extends Component {
 
           </div>
           <div className='col-lg-6' id='searchfield'>
-            <input id='zipInput'  placeholder='Enter Zip Code' ></input>
-            <button onClick={this.getWeather} id='zipBtn'>OK</button>
+            <div className='row'>
+              <div className='col-lg-12'>
+                <input onKeyPress={this.handleKeyPress} id='zipInput'  placeholder='Enter Zip Code' ></input>
+              </div>  
+            </div>
+            <div className='row'>
+              <div className='col-lg-12'>
+                <button onClick={this.getWeather} id='zipBtn'>OK</button>
+              </div>  
+            </div>
           </div>
           <div className='col-lg-3'>
 
@@ -98,9 +110,9 @@ class App extends Component {
 
           </div>
           <div className='col-lg-6'>
-            {/* <p id='time'>{this.state.name}</p> */}
-            {/* <p id='day'>{this.state.moment.day}</p>
-            <p id='date'>{this.state.moment.date}</p> */}
+            <p id='time'>{this.state.time}</p>
+            <p id='day'>{this.state.day}</p>
+            <p id='date'>{this.state.date}</p>
           </div>
           <div className='col-lg-3'>
 
